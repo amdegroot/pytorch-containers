@@ -28,7 +28,7 @@ class TableModule(nn.Module):
         ...
         ...
         return ...
-
+```
 
 ##ConcatTable
 
@@ -93,7 +93,37 @@ class TableModule(nn.Module):
 input1 = Variable(torch.range(1,10).view(1,10))
 input2 = Variable(torch.range(1,5).view(1,5))
 net = TableModule()
-output = net(input)
+output = net(input1,input2)
+```
+
+## MapTable
+
+Torch:
+```
+net = nn.MapTable()
+net:add(nn.Linear(5,10))
+
+input1 = torch.rand(1,5)
+input2 = torch.rand(1,5)
+input3 = torch.rand(1,5)
+output = net:forward{input1,input2,input3}
+```
+
+PyTorch:
+```
+class TableModule(nn.Module):
+    def __init__(self):
+        super(TableModule,self).__init__()
+        self.layer = nn.Linear(5,10)
+    def forward(self,x1,x2,x3):
+        y = [self.layer(x1),self.layer(x2),self.layer(x3)]
+        return y
+        
+input1 = Variable(torch.rand(1,5))
+input2 = Variable(torch.rand(1,5))
+input3 = Variable(torch.rand(1,5))
+net = TableModule()
+output = net(input1,input2,input3)
 ```
 
 
