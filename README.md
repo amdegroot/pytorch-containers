@@ -241,22 +241,51 @@ And we get:
 
 ## Intuitively Build Complex Architectures 
 
-Now we will visit a more complex example that combines several of the above operations. You will notice that as we add 
-more and more complexity to our network, the Torch code becomes more and more verbose.  
-On the other hand, thanks to autograd, the complexity of our PyTorch code does not increase at all. 
+Now we will visit a more complex example that combines several of the above operations.
+The graph below is a random network that I created using the Torch [nngraph](https://github.com/torch/nngraph) package, 
+and the Torch code definition using nngraph can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_graph.lua) and a raw Torch implementation can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_net.lua) for comparison to the PyTorch code that follows. 
 
 <img src= "https://github.com/amdegroot/pytorch-containers/blob/master/doc/complex_example.png" width="600px"/>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+```Python
+class Branch(nn.Module):
+    def __init__(self,b2):
+        super(Branch, self).__init__()
+        self.b = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.b2 = b2
+        
+    def forward(self,x):
+        x = self.b(x) 
+        y = [self.b2(x).view(-1), self.b2(x).view(-1)]
+        z = torch.cat((y[0],y[1]))
+        return z
+        
+class ComplexNet(nn.Module):
+    def __init__(self, m1, m2):
+        super(ComplexNet, self).__init__()
+        self.net1 = m1
+        self.net2 = m2
+        self.net3 = nn.Conv2d(128,256,kernel_size=3,padding=1)
+        self.branch1 = Branch(nn.Conv2d(64,64,kernel_size=3,padding=1))
+        self.branch2 = Branch(nn.Conv2d(128,256,kernel_size=3, padding=1))
+         
+    def forward(self, x):
+        x = self.net1(x)
+        x1 = self.branch1(x)
+        y = self.net2(x)
+        x2 = self.branch2(y)
+        x3 = self.net3(y).view(-1)
+        output = torch.cat((x1,x2,x3),0)
+        return output
+    
+def make_layers(params, ch): 
+    layers = []
+    channels = ch
+    for p in params:
+            conv2d = nn.Conv2d(channels, p, kernel_size=3, padding=1)
+            layers += [conv2d, nn.ReLU(inplace=True)]
+            channels = p
+    return nn.Sequential(*layers) 
+   
+net = ComplexNet(make_layers([64,64],3),make_layers([128,128],64))
+```
