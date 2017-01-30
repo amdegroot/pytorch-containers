@@ -11,7 +11,7 @@ by providing a list of PyTorch implementations of [Torch Table Layers](https://g
 - <a href='#splittable'>SplitTable</a>
 - <a href='#jointable'>JoinTable</a>
 - <a href='#math-tables'>Math Tables</a>
-- <a href='#easily-build-more-complex-architectures'>Easily Build Complex Architectures</a>
+- <a href='#build-more-complex-architectures'>Easily Build Complex Architectures</a>
 
 
 Note: As a result of full integration with Autograd, PyTorch requires networks to be defined in the following manner:
