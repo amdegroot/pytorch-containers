@@ -4,10 +4,14 @@ This repository aims to help former Torchies more seemlessly transition to the "
 [PyTorch](https://github.com/pytorch/pytorch) 
 by providing a list of PyTorch implementations of [Torch Table Layers](https://github.com/torch/nn/blob/master/doc/table.md).
 
-We will build our neural net from a simple nn.Sequential() module as this exists in both 
-Torch and PyTorch and build up from there.  You will notice that as we add more and more  
-complexity to our network, the Torch code becomes more and more verbose.  On the other hand,
-thanks to autograd, the complexity of our PyTorch code does not increase at all.  
+### Table of Contents
+- <a href='#concattable'>ConcatTable</a>
+- <a href='#paralleltable'>ParallelTable</a>
+- <a href='#maptable'>MapTable</a>
+- <a href='#splittable'>SplitTable</a>
+- <a href='#jointable'>JoinTable</a>
+- <a href='#math-tables'>Math Tables</a>
+- <a href='#easily-build-more-complex-architectures'>Easily Build Complex Architectures</a>
 
 
 Note: As a result of full integration with Autograd, PyTorch requires networks to be defined in the following manner:
@@ -30,9 +34,9 @@ class TableModule(nn.Module):
         return ...
 ```
 
-##ConcatTable
+## ConcatTable
 
-### A simple Torch example:  
+### Torch
 ```Lua
 net = nn.ConcatTable()
 net:add(nn.Linear(5,5))
@@ -42,7 +46,7 @@ input = torch.range(1,5):view(1,5)
 net:forward(input)
 ```
 
-### PyTorch Conversion: 
+### PyTorch Conversion 
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
@@ -68,7 +72,7 @@ Two other things to note:
 
 ## ParallelTable
 
-### A simple Torch example:
+### Torch
 ```Lua
 net = nn.ParallelTable()
 net:add(nn.Linear(10,5))
@@ -79,7 +83,7 @@ input2 = Torch.range(1,5):view(1,5)
 output = net:forward{input1,input2}
 ```
 
-### In PyTorch:
+### PyTorch
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
@@ -98,7 +102,7 @@ output = net(input1,input2)
 
 ## MapTable
 
-### Torch:
+### Torch
 ```Lua
 net = nn.MapTable()
 net:add(nn.Linear(5,10))
@@ -109,7 +113,7 @@ input3 = torch.rand(1,5)
 output = net:forward{input1,input2,input3}
 ```
 
-### PyTorch:
+### PyTorch
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
@@ -128,7 +132,7 @@ output = net(input1,input2,input3)
 
 ## SplitTable
 
-### Torch:
+### Torch
 ```Lua
 net = nn.SplitTable(2) # here we specify the dimension on which to split the input Tensor
 input = torch.rand(2,5)
@@ -151,7 +155,7 @@ Alternatively, we could have used torch.split() instead of torch.chunk(). See th
 
 ## JoinTable
 
-### Torch:
+### Torch
 ```Lua
 net = nn.JoinTable(1)
 input1 = torch.rand(1,5)
@@ -180,8 +184,14 @@ Note: We could have used torch.stack() instead of torch.cat(). See the [docs](ht
 The advantages that come with autograd when manipulating networks in these ways
 become much more apparent with more complex architectures, so let's combine some of the 
 operations we defined above. 
-
+## Math Tables
 ## Building more complex architectures 
+
+We will build our neural net from a simple nn.Sequential() module as this exists in both 
+Torch and PyTorch and build up from there.  You will notice that as we add more and more  
+complexity to our network, the Torch code becomes more and more verbose.  On the other hand,
+thanks to autograd, the complexity of our PyTorch code does not increase at all. 
+
 
 
 
