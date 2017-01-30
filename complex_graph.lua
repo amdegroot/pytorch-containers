@@ -18,7 +18,7 @@ r4 = nn.ReLU()(L4)
 r5 = nn.View(-1)(nn.SpatialConvolution(128,256,3,3,1,1,1,1)(r4))
 
 b2 = nn.SpatialMaxPooling(2,2,2,2)(r4)
-b2a = nn.SpatialConvolution(128,256,3,3,1,1,1,1) 
+b2a = nn.SpatialConvolution(128,256,3,3,1,1,1,1)
 b2b = nn.SpatialConvolution(128,256,3,3,1,1,1,1)
 
 leaf2a = nn.View(-1)(b2a(b2))
@@ -39,5 +39,5 @@ output = nn.JoinTable(1)({leaf1,r5,leaf2})
 
 net = nn.gModule({input},{output})
 out = net:forward(torch.Tensor(1,3,10,10))
-graph.dot(net.fg, 'Forward Graph', 'complexgraph')
-graph.dot(net.bg, 'Backward Graph','bcomplexgraph')
+--graph.dot(net.fg, 'Forward Graph', 'complexgraph')
+--graph.dot(net.bg, 'Backward Graph','bcomplexgraph')

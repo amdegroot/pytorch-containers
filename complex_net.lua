@@ -7,18 +7,18 @@ reverse order in terms of sequential segments and branches.
 ]]--
 
 
--- the final layer of our base network 
+-- the final layer of our base network
 net3 = nn.Sequential()
 net3:add(nn.SpatialConvolution(128,256,3,3,1,1,1,1))
 net3:add(nn.View(-1))
 
--- split the last branch 
+-- split the last branch
 branch2b = nn.ParallelTable()
 branch2b:add(nn.SpatialConvolution(128,256,3,3,1,1,1,1))
 branch2b:add(nn.SpatialConvolution(128,256,3,3,1,1,1,1))
 
 -- here we add max pooling and use nn.Replicate() --> nn.SplitTable
--- to allow for a ParallelTable to split the branch 
+-- to allow for a ParallelTable to split the branch
 branch2a = nn.Sequential()
 branch2a:add(nn.SpatialMaxPooling(2,2,2,2))
 branch2a:add(nn.Replicate(4))
@@ -30,8 +30,8 @@ branch2 = nn.ParallelTable()
 branch2:add(branch2a)
 branch2:add(net3)
 
--- using nn.Sequential() for part 2 of base network 
-net2 = nn.Sequential() 
+-- using nn.Sequential() for part 2 of base network
+net2 = nn.Sequential()
 net2:add(nn.SpatialConvolution(64,128,3,3,1,1,1,1))
 net2:add(nn.ReLU())
 net2:add(nn.SpatialConvolution(128,128,3,3,1,1,1,1))
@@ -40,12 +40,12 @@ net2:add(nn.Replicate(4))
 net2:add(nn.SplitTable(1))
 net2:add(branch2)
 
--- split from first branch 
+-- split from first branch
 branch1b = nn.ParallelTable()
 branch1b:add(nn.SpatialConvolution(64,64,3,3,1,1,1,1))
 branch1b:add(nn.SpatialConvolution(64,64,3,3,1,1,1,1))
 
--- add a max pooling layer to branch and then prepare to split 
+-- add a max pooling layer to branch and then prepare to split
 branch1a = nn.Sequential()
 branch1a:add(nn.SpatialMaxPooling(2,2,2,2))
 branch1a:add(nn.Replicate(4))
@@ -57,7 +57,16 @@ branch1 = nn.ParallelTable()
 branch1:add(branch1a)
 branch1:add(net2)
 
--- the first layers of the network 
+-- After we flatten all the nested tables, we will 'vectorize' all the tensors
+prl = nn.ParallelTable()
+prl:add(nn.View(-1))
+prl:add(nn.View(-1))
+prl:add(nn.View(-1))
+prl:add(nn.View(-1))
+prl:add(nn.View(-1))
+
+
+-- the first layers of the network
 net = nn.Sequential()
 net:add(nn.SpatialConvolution(3,64,3,3,1,1,1,1))
 net:add(nn.ReLU())
@@ -66,3 +75,8 @@ net:add(nn.ReLU())
 net:add(nn.Replicate(4))
 net:add(nn.SplitTable(1))
 net:add(branch1)
+
+-- now need to join output from branch 1, branch 2, and net3
+net:add(nn.FlattenTable())
+net:add(prl)
+net:add(nn.ConcatTable())
