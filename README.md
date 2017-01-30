@@ -239,9 +239,9 @@ And we get:
 ## Building more complex architectures 
 
 We will build our neural net from a base nn.Sequential() module, which exists in both 
-Torch and PyTorch, and build up from there.  You will notice that as we add more and more  
-complexity to our network, the Torch code becomes more and more verbose.  On the other hand,
-thanks to autograd, the complexity of our PyTorch code does not increase at all. 
+Torch and PyTorch, and build up from there.  You will notice that as we add more and more complexity to our network, 
+the Torch code becomes more and more verbose.  On the other hand, thanks to autograd, the complexity of our PyTorch 
+code does not increase at all. 
 
 
 
