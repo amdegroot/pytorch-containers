@@ -1,6 +1,6 @@
 # pytorch-containers
 
-This repository aims to help former Torchies more seemlessly transition to the "Containerless" world of 
+This repository aims to help former Torchies more seamlessly transition to the "Containerless" world of 
 [PyTorch](https://github.com/pytorch/pytorch) 
 by providing a list of PyTorch implementations of [Torch Table Layers](https://github.com/torch/nn/blob/master/doc/table.md).
 
@@ -68,7 +68,7 @@ flexibility as your architectures become more complex, and it's also a lot easie
 remembering the exact functionality of ConcatTable, or any of the other tables for that matter.
 
 Two other things to note: 
-- To work with autograd, we must wrap our input in a `Variable`
+- To work with autograd, we must wrap our input in a `Variable` (we can also pass a python iterable of Variables)
 - PyTorch requires us to add a batch dimension which is why we call `.unsqueeze(0)` on the input
 
 
@@ -202,7 +202,7 @@ class TableModule(nn.Module):
         super(TableModule,self).__init__()
         
     def forward(self,x1,x2):
-        x_sum = x1+x2
+        x_sum = x1+x2 # could use sum() if input given as python iterable
         x_sub = x1-x2
         x_div = x1/x2
         x_mul = x1*x2
@@ -242,8 +242,7 @@ And we get:
 ## Intuitively Build Complex Architectures 
 
 Now we will visit a more complex example that combines several of the above operations.
-The graph below is a random network that I created using the Torch [nngraph](https://github.com/torch/nngraph) package, 
-and the Torch code definition using nngraph can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_graph.lua) and a raw Torch implementation can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_net.lua) for comparison to the PyTorch code that follows. 
+The graph below is a random network that I created using the Torch [nngraph](https://github.com/torch/nngraph) package. The Torch model definition using nngraph can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_graph.lua) and a raw Torch implementation can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_net.lua) for comparison to the PyTorch code that follows. 
 
 <img src= "https://github.com/amdegroot/pytorch-containers/blob/master/doc/complex_example.png" width="600px"/>
 
@@ -251,33 +250,54 @@ and the Torch code definition using nngraph can be found [here](https://github.c
 class Branch(nn.Module):
     def __init__(self,b2):
         super(Branch, self).__init__()
+        """
+        Upon closer examination of the structure, note a
+        MaxPool2d with the same params is used in each branch, 
+        so we can just reuse this and pass in the 
+        conv layer that is repeated in parallel right after 
+        it (reusing it as well).
+        """
         self.b = nn.MaxPool2d(kernel_size=2, stride=2)
         self.b2 = b2
         
     def forward(self,x):
         x = self.b(x) 
-        y = [self.b2(x).view(-1), self.b2(x).view(-1)]
-        z = torch.cat((y[0],y[1]))
+        y = [self.b2(x).view(-1), self.b2(x).view(-1)] # pytorch 'ParallelTable'
+        z = torch.cat((y[0],y[1])) # pytorch 'JoinTable'
         return z
-        
+```
+Now that we have a branch class general enough to handle both branches, we can define the base segments 
+and piece it all together in a very natural way. 
+
+```Python
 class ComplexNet(nn.Module):
     def __init__(self, m1, m2):
         super(ComplexNet, self).__init__()
-        self.net1 = m1
-        self.net2 = m2
-        self.net3 = nn.Conv2d(128,256,kernel_size=3,padding=1)
-        self.branch1 = Branch(nn.Conv2d(64,64,kernel_size=3,padding=1))
+        # define each piece of our network shown above
+        self.net1 = m1 # segment 1 from VGG
+        self.net2 = m2 #segment 2 from VGG
+        self.net3 = nn.Conv2d(128,256,kernel_size=3,padding=1) # last layer 
+        self.branch1 = Branch(nn.Conv2d(64,64,kernel_size=3,padding=1)) 
         self.branch2 = Branch(nn.Conv2d(128,256,kernel_size=3, padding=1))
          
     def forward(self, x):
+        """
+        Here we see that autograd allows us to safely reuse Variables in 
+        defining the computational graph.  We could also reuse Modules or even 
+        use loops or conditional statements.
+        Note: Some of this could be condensed, but it is laid out the way it 
+        is for clarity.
+        """
         x = self.net1(x)
-        x1 = self.branch1(x)
-        y = self.net2(x)
-        x2 = self.branch2(y)
+        x1 = self.branch1(x) # SplitTable (implicitly)
+        y = self.net2(x) 
+        x2 = self.branch2(y) # SplitTable (implicitly)
         x3 = self.net3(y).view(-1)
-        output = torch.cat((x1,x2,x3),0)
+        output = torch.cat((x1,x2,x3),0) # JoinTable
         return output
-    
+```
+This is a loop to define our VGG conv layers derived from [pytorch/vision](https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py). (maybe a little overkill for our small case)
+```Python
 def make_layers(params, ch): 
     layers = []
     channels = ch
@@ -289,3 +309,5 @@ def make_layers(params, ch):
    
 net = ComplexNet(make_layers([64,64],3),make_layers([128,128],64))
 ```
+This documented python code can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_net.py).  
+
