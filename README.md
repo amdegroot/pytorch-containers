@@ -11,7 +11,7 @@ by providing a list of PyTorch implementations of [Torch Table Layers](https://g
 - <a href='#splittable'>SplitTable</a>
 - <a href='#jointable'>JoinTable</a>
 - <a href='#math-tables'>Math Tables</a>
-- <a href='#build-more-complex-architectures'>Easily Build Complex Architectures</a>
+- <a href='#intuitively-build-complex-architectures'>Intuitively Build Complex Architectures</a>
 
 
 Note: As a result of full integration with [autograd](http://pytorch.org/docs/autograd.html), PyTorch requires networks to be defined in the following manner:
@@ -239,7 +239,7 @@ And we get:
 )
 ```
 
-## Building more complex architectures 
+## Intuitively build complex architectures 
 
 We will build our neural net from a base nn.Sequential() module, which exists in both 
 Torch and PyTorch, and build up from there.  You will notice that as we add more and more complexity to our network, 
