@@ -185,10 +185,6 @@ output = net([input1,input2,input3],0)
 ```
 Note: We could have used torch.stack() instead of torch.cat(). See the [docs](http://pytorch.org/docs/tensors.html).
 
-The advantages that come with autograd when manipulating networks in these ways
-become much more apparent with more complex architectures, so let's combine some of the 
-operations we defined above. 
-
 ## Math Tables
 
 The math table implementations are pretty intuitive, so the Torch implementations are omitted in this repo, 
@@ -238,6 +234,10 @@ And we get:
 [torch.FloatTensor of size 1x5]
 )
 ```
+
+The advantages that come with autograd when manipulating networks in these ways
+become much more apparent with more complex architectures, so let's combine some of the 
+operations we defined above. 
 
 ## Intuitively Build Complex Architectures 
 
