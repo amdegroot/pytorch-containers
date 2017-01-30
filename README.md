@@ -16,11 +16,11 @@ by providing a list of PyTorch implementations of [Torch Table Layers](https://g
 
 Note: As a result of full integration with [autograd](http://pytorch.org/docs/autograd.html), PyTorch requires networks to be defined in the following manner:
 - Define all layers to be used in the `__init__` method of your network
-- Combine them however you want in the `forward` method of your network
+- Combine them however you want in the `forward` method of your network (avoiding in place Tensor ops)
 
 And that's all there is to it!
 
-We will build upon a generic "TableModule" class that we define as:
+We will build upon a generic "TableModule" class that we initially define as:
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
@@ -42,7 +42,7 @@ net = nn.ConcatTable()
 net:add(nn.Linear(5,5))
 net:add(nn.Linear(5,10))
 
-input = torch.range(1,5):view(1,5)
+input = torch.range(1,5)
 net:forward(input)
 ```
 
@@ -57,18 +57,19 @@ class TableModule(nn.Module):
         y = [self.layer1(x),self.layer2(x)]
         return y
         
-input = Variable(torch.range(1,5).view(1,5))
+input = Variable(torch.range(1,5).unsqueeze(0))
 net = TableModule()
 net(input)
 ```
 
 As you can see, PyTorch allows you to apply each member module that would have been
 part of your Torch ConcatTable, directly to the same input Variable.  This offers much more 
-flexibility as your architectures become more complex.
+flexibility as your architectures become more complex, and it's also a lot easier than 
+remembering the exact functionality of ConcatTable, or any of the other tables for that matter.
 
 Two other things to note: 
-- To work with autograd, we must wrap our input in a Variable
-- PyTorch requires us to add a batch dimension which is why we call `.view(1,5)` on the input
+- To work with autograd, we must wrap our input in a `Variable`
+- PyTorch requires us to add a batch dimension which is why we call `.unsqueeze(0)` on the input
 
 
 ## ParallelTable
@@ -79,8 +80,8 @@ net = nn.ParallelTable()
 net:add(nn.Linear(10,5))
 net:add(nn.Linear(5,10))
 
-input1 = Torch.range(1,10):view(1,10)
-input2 = Torch.range(1,5):view(1,5)
+input1 = Torch.rand(1,10)
+input2 = Torch.rand(1,5)
 output = net:forward{input1,input2}
 ```
 
@@ -91,14 +92,14 @@ class TableModule(nn.Module):
         super(TableModule,self).__init__()
         self.layer1 = nn.Linear(10,5)
         self.layer2 = nn.Linear(5,10)
-    def forward(self,x1,x2):
-        y = [self.layer1(x1),self.layer2(x2)]
+    def forward(self,x):
+        y = [self.layer1(x[0]),self.layer2(x[1])]
         return y
         
-input1 = Variable(torch.range(1,10).view(1,10))
-input2 = Variable(torch.range(1,5).view(1,5))
+input1 = Variable(torch.rand(1,10))
+input2 = Variable(torch.rand(1,5))
 net = TableModule()
-output = net(input1,input2)
+output = net([input1,input2])
 ```
 
 ## MapTable
@@ -120,15 +121,15 @@ class TableModule(nn.Module):
     def __init__(self):
         super(TableModule,self).__init__()
         self.layer = nn.Linear(5,10)
-    def forward(self,x1,x2,x3):
-        y = [self.layer(x1),self.layer(x2),self.layer(x3)]
+    def forward(self,x):
+        y = [self.layer(member) for member in x]
         return y
         
 input1 = Variable(torch.rand(1,5))
 input2 = Variable(torch.rand(1,5))
 input3 = Variable(torch.rand(1,5))
 net = TableModule()
-output = net(input1,input2,input3)
+output = net([input1,input2,input3])
 ```
 
 ## SplitTable
@@ -146,13 +147,14 @@ class TableModule(nn.Module):
     def __init__(self):
         super(TableModule,self).__init__()
     def forward(self,x,dim):
-        return x.chunk(x.size(dim),dim)
+        y = x.chunk(x.size(dim),dim)
+        return y
         
 input = Variable(torch.rand(2,5))
 net = TableModule()
 output = net(input,1)
 ```
-Alternatively, we could have used torch.split() instead of torch.chunk(). See the [docs](http://pytorch.org/docs/tensors.html).
+Alternatively, we could have used `torch.split()` instead of `torch.chunk()`. See the [docs](http://pytorch.org/docs/tensors.html).
 
 ## JoinTable
 
@@ -171,14 +173,15 @@ class TableModule(nn.Module):
     def __init__(self):
         super(TableModule,self).__init__()
         
-    def forward(self,x1,x2,x3,dim):
-        return torch.cat((x1,x2,x3),dim)
-
+    def forward(self,x,dim):
+        y = torch.cat(x,dim)
+        return y
+        
 input1 = Variable(torch.rand(1,5))
 input2 = Variable(torch.rand(2,5))
 input3 = Variable(torch.rand(3,5))
 net = TableModule()
-output = net(input1,input2,input3,0)
+output = net([input1,input2,input3],0)
 ```
 Note: We could have used torch.stack() instead of torch.cat(). See the [docs](http://pytorch.org/docs/tensors.html).
 
