@@ -32,7 +32,7 @@ class TableModule(nn.Module):
 
 ##ConcatTable
 
-A simple Torch example:  
+### A simple Torch example:  
 ```Lua
 net = nn.ConcatTable()
 net:add(nn.Linear(5,5))
@@ -42,7 +42,7 @@ input = torch.range(1,5):view(1,5)
 net:forward(input)
 ```
 
-PyTorch Conversion: 
+### PyTorch Conversion: 
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
@@ -68,7 +68,7 @@ Two other things to note:
 
 ## ParallelTable
 
-A simple Torch example:
+### A simple Torch example:
 ```Lua
 net = nn.ParallelTable()
 net:add(nn.Linear(10,5))
@@ -79,7 +79,7 @@ input2 = Torch.range(1,5):view(1,5)
 output = net:forward{input1,input2}
 ```
 
-In PyTorch:
+### In PyTorch:
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
@@ -98,8 +98,8 @@ output = net(input1,input2)
 
 ## MapTable
 
-Torch:
-```
+### Torch:
+```Lua
 net = nn.MapTable()
 net:add(nn.Linear(5,10))
 
@@ -109,8 +109,8 @@ input3 = torch.rand(1,5)
 output = net:forward{input1,input2,input3}
 ```
 
-PyTorch:
-```
+### PyTorch:
+```Python
 class TableModule(nn.Module):
     def __init__(self):
         super(TableModule,self).__init__()
@@ -125,6 +125,71 @@ input3 = Variable(torch.rand(1,5))
 net = TableModule()
 output = net(input1,input2,input3)
 ```
+
+## SplitTable
+
+### Torch:
+```Lua
+net = nn.SplitTable(2) # here we specify the dimension on which to split the input Tensor
+input = torch.rand(2,5)
+output = net:forward(input)
+```
+
+### PyTorch
+```Python
+class TableModule(nn.Module):
+    def __init__(self):
+        super(TableModule,self).__init__()
+    def forward(self,x,dim):
+         return x.chunk(x.size(dim),dim)
+        
+input = Variable(torch.rand(2,5))
+net = TableModule()
+output = net(input,1)
+```
+Alternatively, we could have used torch.split() instead of torch.chunk(). See the [docs](http://pytorch.org/docs/tensors.html).
+
+## JoinTable
+
+### Torch:
+```Lua
+net = nn.JoinTable(1)
+input1 = torch.rand(1,5)
+input2 = torch.rand(2,5)
+input3 = torch.rand(3,5)
+output = net:forward{input1,input2,input3}
+```
+
+### PyTorch
+```Python
+class TableModule(nn.Module):
+    def __init__(self):
+        super(TableModule,self).__init__()
+        
+    def forward(self,x1,x2,x3,dim):
+         return torch.cat((x1,x2,x3),dim)
+
+input1 = Variable(torch.rand(1,5))
+input2 = Variable(torch.rand(2,5))
+input3 = Variable(torch.rand(3,5))
+net = TableModule()
+output = net(input1,input2,input3,0)
+```
+Note: We could have used torch.stack() instead of torch.cat(). See the [docs](http://pytorch.org/docs/tensors.html).
+
+The advantages that come with autograd when manipulating networks in these ways
+become much more apparent with more complex architectures, so let's combine some of the 
+operations we defined above. 
+
+## Building more complex architectures 
+
+
+
+
+
+
+
+
 
 
 
