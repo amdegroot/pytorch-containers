@@ -61,13 +61,14 @@ input = Variable(torch.range(1,5).view(1,5))
 net = TableModule()
 net(input)
 ```
+
 As you can see, PyTorch allows you to apply each member module that would have been
 part of your Torch ConcatTable, directly to the same input Variable.  This offers much more 
 flexibility as your architectures become more complex.
 
 Two other things to note: 
-1. To work with autograd, we must wrap our input in a Variable
-2. PyTorch requires us to add a batch dimension which is why we call `.view(1,5)` on the input
+- To work with autograd, we must wrap our input in a Variable
+- PyTorch requires us to add a batch dimension which is why we call `.view(1,5)` on the input
 
 
 ## ParallelTable
