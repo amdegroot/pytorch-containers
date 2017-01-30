@@ -245,7 +245,7 @@ Now we will visit a more complex example that combines several of the above oper
 more and more complexity to our network, the Torch code becomes more and more verbose.  
 On the other hand, thanks to autograd, the complexity of our PyTorch code does not increase at all. 
 
-<img src= "https://github.com/amdegroot/pytorch-containers/master/doc/complex_example.png" width="600px"/>
+<img src= "https://github.com/amdegroot/pytorch-containers/blob/master/doc/complex_example.png" width="600px"/>
 
 
 
