@@ -15,8 +15,8 @@ by providing a list of PyTorch implementations of [Torch Table Layers](https://g
 
 
 Note: As a result of full integration with [autograd](http://pytorch.org/docs/autograd.html), PyTorch requires networks to be defined in the following manner:
-1. Define all layers to be used in the `__init__` method of your network
-2. Combine them however you want in the `forward` method of your network
+- Define all layers to be used in the `__init__` method of your network
+- Combine them however you want in the `forward` method of your network
 
 And that's all there is to it!
 
