@@ -46,7 +46,7 @@ input = torch.range(1,5)
 net:forward(input)
 ```
 
-### PyTorch Conversion 
+### PyTorch
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
@@ -239,14 +239,13 @@ And we get:
 )
 ```
 
-## Intuitively build complex architectures 
+## Intuitively Build Complex Architectures 
 
-We will build our neural net from a base nn.Sequential() module, which exists in both 
-Torch and PyTorch, and build up from there.  You will notice that as we add more and more complexity to our network, 
-the Torch code becomes more and more verbose.  On the other hand, thanks to autograd, the complexity of our PyTorch 
-code does not increase at all. 
+Now we will visit a more complex example that combines several of the above operations. You will notice that as we add 
+more and more complexity to our network, the Torch code becomes more and more verbose.  
+On the other hand, thanks to autograd, the complexity of our PyTorch code does not increase at all. 
 
-
+<img src= "https://raw.github.com/amdegroot/pytorch-containers/master/docs/complex_example.png" width="600px"/>
 
 
 
