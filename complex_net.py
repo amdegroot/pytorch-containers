@@ -52,7 +52,6 @@ def make_layers(params, ch):
     Args:
         params(int[]): The Conv2d parameters for input and output channels
         ch(int): The initial input channel parameter for the first Conv2d
-
     """
     layers = []
     channels = ch
