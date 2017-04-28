@@ -24,10 +24,11 @@ We will build upon a generic "TableModule" class that we initially define as:
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
-        super(TableModule,self).__init__()
-        self.layer1 = nn.Linear(5,5).double()
-        self.layer2 = nn.Linear(5,10).double()
-    def forward(self,x):
+        super(TableModule, self).__init__()
+        self.layer1 = nn.Linear(5, 5).double()
+        self.layer2 = nn.Linear(5, 10).double()
+        
+    def forward(self, x):
         ...
         ...
         ...
@@ -39,10 +40,10 @@ class TableModule(nn.Module):
 ### Torch
 ```Lua
 net = nn.ConcatTable()
-net:add(nn.Linear(5,5))
-net:add(nn.Linear(5,10))
+net:add(nn.Linear(5, 5))
+net:add(nn.Linear(5, 10))
 
-input = torch.range(1,5)
+input = torch.range(1, 5)
 net:forward(input)
 ```
 
@@ -50,14 +51,15 @@ net:forward(input)
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
-        super(TableModule,self).__init__()
-        self.layer1 = nn.Linear(5,5)
-        self.layer2 = nn.Linear(5,10)
+        super(TableModule, self).__init__()
+        self.layer1 = nn.Linear(5, 5)
+        self.layer2 = nn.Linear(5, 10)
+        
     def forward(self,x):
-        y = [self.layer1(x),self.layer2(x)]
+        y = [self.layer1(x), self.layer2(x)]
         return y
         
-input = Variable(torch.range(1,5).unsqueeze(0))
+input = Variable(torch.range(1, 5).unsqueeze(0))
 net = TableModule()
 net(input)
 ```
@@ -77,12 +79,12 @@ Two other things to note:
 ### Torch
 ```Lua
 net = nn.ParallelTable()
-net:add(nn.Linear(10,5))
-net:add(nn.Linear(5,10))
+net:add(nn.Linear(10, 5))
+net:add(nn.Linear(5, 10))
 
-input1 = Torch.rand(1,10)
-input2 = Torch.rand(1,5)
-output = net:forward{input1,input2}
+input1 = Torch.rand(1, 10)
+input2 = Torch.rand(1, 5)
+output = net:forward{input1, input2}
 ```
 
 ### PyTorch
@@ -90,16 +92,17 @@ output = net:forward{input1,input2}
 class TableModule(nn.Module):
     def __init__(self):
         super(TableModule,self).__init__()
-        self.layer1 = nn.Linear(10,5)
-        self.layer2 = nn.Linear(5,10)
+        self.layer1 = nn.Linear(10, 5)
+        self.layer2 = nn.Linear(5, 10)
+        
     def forward(self,x):
-        y = [self.layer1(x[0]),self.layer2(x[1])]
+        y = [self.layer1(x[0]), self.layer2(x[1])]
         return y
         
-input1 = Variable(torch.rand(1,10))
-input2 = Variable(torch.rand(1,5))
+input1 = Variable(torch.rand(1, 10))
+input2 = Variable(torch.rand(1, 5))
 net = TableModule()
-output = net([input1,input2])
+output = net([input1, input2])
 ```
 
 ## MapTable
@@ -107,29 +110,30 @@ output = net([input1,input2])
 ### Torch
 ```Lua
 net = nn.MapTable()
-net:add(nn.Linear(5,10))
+net:add(nn.Linear(5, 10))
 
-input1 = torch.rand(1,5)
-input2 = torch.rand(1,5)
-input3 = torch.rand(1,5)
-output = net:forward{input1,input2,input3}
+input1 = torch.rand(1, 5)
+input2 = torch.rand(1, 5)
+input3 = torch.rand(1, 5)
+output = net:forward{input1, input2, input3}
 ```
 
 ### PyTorch
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
-        super(TableModule,self).__init__()
-        self.layer = nn.Linear(5,10)
-    def forward(self,x):
+        super(TableModule, self).__init__()
+        self.layer = nn.Linear(5, 10)
+        
+    def forward(self, x):
         y = [self.layer(member) for member in x]
         return y
         
-input1 = Variable(torch.rand(1,5))
-input2 = Variable(torch.rand(1,5))
-input3 = Variable(torch.rand(1,5))
+input1 = Variable(torch.rand(1, 5))
+input2 = Variable(torch.rand(1, 5))
+input3 = Variable(torch.rand(1, 5))
 net = TableModule()
-output = net([input1,input2,input3])
+output = net([input1, input2, input3])
 ```
 
 ## SplitTable
@@ -137,7 +141,7 @@ output = net([input1,input2,input3])
 ### Torch
 ```Lua
 net = nn.SplitTable(2) # here we specify the dimension on which to split the input Tensor
-input = torch.rand(2,5)
+input = torch.rand(2, 5)
 output = net:forward(input)
 ```
 
@@ -145,14 +149,15 @@ output = net:forward(input)
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
-        super(TableModule,self).__init__()
-    def forward(self,x,dim):
-        y = x.chunk(x.size(dim),dim)
+        super(TableModule, self).__init__()
+        
+    def forward(self, x, dim):
+        y = x.chunk(x.size(dim), dim)
         return y
         
-input = Variable(torch.rand(2,5))
+input = Variable(torch.rand(2, 5))
 net = TableModule()
-output = net(input,1)
+output = net(input, 1)
 ```
 Alternatively, we could have used `torch.split()` instead of `torch.chunk()`. See the [docs](http://pytorch.org/docs/tensors.html).
 
@@ -161,27 +166,27 @@ Alternatively, we could have used `torch.split()` instead of `torch.chunk()`. Se
 ### Torch
 ```Lua
 net = nn.JoinTable(1)
-input1 = torch.rand(1,5)
-input2 = torch.rand(2,5)
-input3 = torch.rand(3,5)
-output = net:forward{input1,input2,input3}
+input1 = torch.rand(1, 5)
+input2 = torch.rand(2, 5)
+input3 = torch.rand(3, 5)
+output = net:forward{input1, input2, input3}
 ```
 
 ### PyTorch
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
-        super(TableModule,self).__init__()
+        super(TableModule, self).__init__()
         
-    def forward(self,x,dim):
-        y = torch.cat(x,dim)
+    def forward(self, x, dim):
+        y = torch.cat(x, dim)
         return y
         
-input1 = Variable(torch.rand(1,5))
-input2 = Variable(torch.rand(2,5))
-input3 = Variable(torch.rand(3,5))
+input1 = Variable(torch.rand(1, 5))
+input2 = Variable(torch.rand(2, 5))
+input3 = Variable(torch.rand(3, 5))
 net = TableModule()
-output = net([input1,input2,input3],0)
+output = net([input1, input2, input3], 0)
 ```
 Note: We could have used torch.stack() instead of torch.cat(). See the [docs](http://pytorch.org/docs/tensors.html).
 
@@ -195,21 +200,21 @@ Here we define one class that executes all of the math operations.
 ```Python
 class TableModule(nn.Module):
     def __init__(self):
-        super(TableModule,self).__init__()
+        super(TableModule, self).__init__()
         
-    def forward(self,x1,x2):
-        x_sum = x1+x2 # could use sum() if input given as python iterable
+    def forward(self, x1, x2):
+        x_sum = x1+x2  # could use .sum() if input given as python iterable
         x_sub = x1-x2
         x_div = x1/x2
         x_mul = x1*x2
-        x_min = torch.min(x1,x2)
-        x_max = torch.max(x1,x2)
+        x_min = torch.min(x1, x2)
+        x_max = torch.max(x1, x2)
         return x_sum, x_sub, x_div, x_mul, x_min, x_max
 
-input1 = Variable(torch.range(1,5).view(1,5))
-input2 = Variable(torch.range(6,10).view(1,5))
+input1 = Variable(torch.range(1, 5).view(1, 5))
+input2 = Variable(torch.range(6, 10).view(1, 5))
 net = TableModule()
-output = net(input1,input2)
+output = net(input1, input2)
 print(output)
 ```
 And we get: 
@@ -248,7 +253,7 @@ The graph below is a random network that I created using the Torch [nngraph](htt
 
 ```Python
 class Branch(nn.Module):
-    def __init__(self,b2):
+    def __init__(self, b2):
         super(Branch, self).__init__()
         """
         Upon closer examination of the structure, note a
@@ -263,7 +268,7 @@ class Branch(nn.Module):
     def forward(self,x):
         x = self.b(x) 
         y = [self.b2(x).view(-1), self.b2(x).view(-1)] # pytorch 'ParallelTable'
-        z = torch.cat((y[0],y[1])) # pytorch 'JoinTable'
+        z = torch.cat((y[0], y[1])) # pytorch 'JoinTable'
         return z
 ```
 Now that we have a branch class general enough to handle both branches, we can define the base segments 
@@ -276,9 +281,9 @@ class ComplexNet(nn.Module):
         # define each piece of our network shown above
         self.net1 = m1 # segment 1 from VGG
         self.net2 = m2 #segment 2 from VGG
-        self.net3 = nn.Conv2d(128,256,kernel_size=3,padding=1) # last layer 
-        self.branch1 = Branch(nn.Conv2d(64,64,kernel_size=3,padding=1)) 
-        self.branch2 = Branch(nn.Conv2d(128,256,kernel_size=3, padding=1))
+        self.net3 = nn.Conv2d(128, 256, kernel_size=3, padding=1) # last layer 
+        self.branch1 = Branch(nn.Conv2d(64, 64, kernel_size=3, padding=1)) 
+        self.branch2 = Branch(nn.Conv2d(128, 256, kernel_size=3, padding=1))
          
     def forward(self, x):
         """
@@ -293,7 +298,7 @@ class ComplexNet(nn.Module):
         y = self.net2(x) 
         x2 = self.branch2(y) # SplitTable (implicitly)
         x3 = self.net3(y).view(-1)
-        output = torch.cat((x1,x2,x3),0) # JoinTable
+        output = torch.cat((x1, x2, x3), 0) # JoinTable
         return output
 ```
 This is a loop to define our VGG conv layers derived from [pytorch/vision](https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py). (maybe a little overkill for our small case)
@@ -307,7 +312,7 @@ def make_layers(params, ch):
             channels = p
     return nn.Sequential(*layers) 
    
-net = ComplexNet(make_layers([64,64],3),make_layers([128,128],64))
+net = ComplexNet(make_layers([64, 64], 3), make_layers([128, 128], 64))
 ```
 This documented python code can be found [here](https://github.com/amdegroot/pytorch-containers/blob/master/complex_net.py).  
 
